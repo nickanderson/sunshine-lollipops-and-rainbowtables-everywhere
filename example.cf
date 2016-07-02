@@ -1,0 +1,63 @@
+bundle common root_passwd_settings
+{
+  vars:
+
+    "password_dist"
+      string => "$(sys.workdir)/cmdb/$(connection.key)/root.hash",
+      comment => "This is where agents look for their root password hash.";
+
+    "password_cache"
+      string => "$(sys.workdir)/state/passwd/root.hash",
+      comment => "This is where agents will cache the hashed password locally
+                  (for offline enforcement).";
+}
+
+bundle agent root_passwd
+{
+  methods:
+
+    "Manage Root Password"
+      usebundle => manage_root_passwd("root_passwd_settings");
+}
+
+bundle agent manage_root_passwd(settings)
+# @brief This bundle is run by agents to enforce the local root password.
+{
+  vars:
+    any::
+      "passwd_dist" string => "$(sys.workdir)/cmdb/$(sys.key_digest)/root.hash";
+      "passwd_cache" string => "$($(settings).password_cache)";
+      "passwd_cache_dir" string => dirname("$(passwd_cache)");
+
+    have_cached_hashed_passwd::
+      "root_hash" string => readfile($(passwd_cache), 4096);
+
+  classes:
+    "have_cached_hashed_passwd"
+      expression => fileexists($(passwd_cache));
+
+  files:
+    "$(passwd_cache_dir)/."
+      create => "true";
+
+    "$(passwd_cache)"
+      copy_from => remote_dcp( $(passwd_dist) , $(sys.policy_hub) );
+      
+  users:
+    "root"
+      policy => "present",
+      password => hashed_password($(root_hash));
+}
+
+bundle server passwd_access
+# @brief This bundle shares the path to the password hash
+{
+  access:
+    
+# It's important that this path have $(connection.key) in it!
+
+    "$(root_passwd_settings.password_dist)"
+      admit_keys =>  { $(connection.key) },
+      comment => "Grant each host to access its own hashed root password. We
+                  assume that each host has a unique keypair";
+}

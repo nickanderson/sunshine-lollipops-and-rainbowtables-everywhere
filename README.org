@@ -1,0 +1,37 @@
+#+Title: Sunshine Lollipops and Rainbowtables Everywhere
+
+I once asked someone how they managed rotating their root passwords. They showed
+me how they used a script that asked them for a password, and spat back out the
+hash of the password as would be found in =/etc/shadow=. Then they pushed out
+this value to all of the shadow files in the infrastructure.
+
+Using CFEngine will help ensure any unavailable or newly provisioned hosts will
+get the updated hash. But there are other things that could be improved as well.
+
+  - Unique hashes and salt for each host
+  - Unique passwords for each host
+  - Using the strongest hashing algorithm available
+
+** =sunshine_lollipops_and_rainbowtables_everywhere.sh=
+
+   This was the original script I wrote as a very minor improvement on sharing a
+   common hashed password for each host.
+
+   This interactive script is intended to be run with elevated privileges on a
+   CFEngine policy server. For a given password and hasing algorithm, it
+   generates a *unique* password hash for each /Incoming/ host in the lastseen
+   database found by executing =cf-key -s=.
+
+   It writes hashed password to =/var/cfengine/cmdb/PPKEY/root.hash=.
+
+** =per_host_apg.sh=
+
+   This is a quick variant of
+   =sunshine_lollipops_and_rainbowtables_everywhere.sh= that uses apg to
+   generate a unique password for each host.
+
+** =example.cf=
+
+   This CFEngine 3 policy shows an example ACL to share host specific data as
+   well as host policy to download the host specific hash file based on each
+   hosts key SHA.
