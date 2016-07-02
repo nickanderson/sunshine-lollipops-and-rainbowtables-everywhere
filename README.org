@@ -19,7 +19,7 @@ get the updated hash. But there are other things that could be improved as well.
 
    This interactive script is intended to be run with elevated privileges on a
    CFEngine policy server. For a given password and hasing algorithm, it
-   generates a *unique* password hash for each /Incoming/ host in the lastseen
+   generates a *unique password hash* for each /Incoming/ host in the lastseen
    database found by executing =cf-key -s=.
 
    It writes hashed password to =/var/cfengine/cmdb/PPKEY/root.hash=.
