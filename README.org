@@ -12,7 +12,7 @@ get the updated hash. But there are other things that could be improved as well.
   - Unique passwords for each host
   - Using the strongest hashing algorithm available
 
-** =sunshine_lollipops_and_rainbowtables_everywhere.sh=
+** [[sunshine_lollipops_and_rainbowtables_everywhere.sh][sunshine_lollipops_and_rainbowtables_everywhere.sh]]
 
    This was the original script I wrote as a very minor improvement on sharing a
    common hashed password for each host.
@@ -24,13 +24,13 @@ get the updated hash. But there are other things that could be improved as well.
 
    It writes hashed password to =/var/cfengine/cmdb/PPKEY/root.hash=.
 
-** =per_host_apg.sh=
+** [[per_host_apg.sh][per_host_apg.sh]]
 
    This is a quick variant of
    =sunshine_lollipops_and_rainbowtables_everywhere.sh= that uses apg to
    generate a unique password for each host.
 
-** =example.cf=
+** [[example.cf][example.cf]]
 
    This CFEngine 3 policy shows an example ACL to share host specific data as
    well as host policy to download the host specific hash file based on each
