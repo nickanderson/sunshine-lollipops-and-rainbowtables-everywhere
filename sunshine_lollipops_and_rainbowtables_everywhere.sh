@@ -60,7 +60,7 @@ printf "
 Please choose a valid password hasing algorithm [1|2|5|6]"
 while [[ ! ${_algo} =~ ^[1256]+$ ]]; do
     echo "Please enter a valid selection: "
-    read _algo
+    read -r _algo
 done
 export _algo=$_algo
 
@@ -86,15 +86,16 @@ COUNT=1
 for each in $HOSTS; do
     echo "Generating Unique Hash for $each"
 
-    mkdir -p $HASHED_OUTPUT_DIR/$each &> /dev/null
-    export _salt=$(openssl rand 1000 | strings | grep -io [0-9A-Za-z\.\/] | head -n 16 | tr -d '\n' )
+    mkdir -p "$HASHED_OUTPUT_DIR/$each" &> /dev/null
+    export _salt
+    _salt=$(openssl rand 1000 | strings | grep -io '[0-9A-Za-z\.\/]' | head -n 16 | tr -d '\n' )
     export _password=$PASSWORD
 
-    echo $(perl -e 'print crypt("$ENV{'_password'}","\$$ENV{'_algo'}\$"."$ENV{'_salt'}"."\$")') > ${HASHED_OUTPUT_DIR}/${each}/$HASHED_OUTPUT_FILENAME && echo Wrote hash for ${each} to ${HASHED_OUTPUT_DIR}/${each}/${HASHED_OUTPUT_FILENAME} && COUNT=$((COUNT+1))
+    perl -e 'print crypt("$ENV{'_password'}","\$$ENV{'_algo'}\$"."$ENV{'_salt'}"."\$\n")' > "${HASHED_OUTPUT_DIR}/${each}/$HASHED_OUTPUT_FILENAME" && echo "Wrote hash for ${each} to ${HASHED_OUTPUT_DIR}/${each}/${HASHED_OUTPUT_FILENAME}" && COUNT=$((COUNT+1))
     # Useful if you want to store the plaintext version for reference
 
     if [ "${STORE_PLAINTEXT}" = true ]; then
-      echo "$PASSWORD" > ${PLAINTEXT_OUTPUT_DIR}/${each}/${PLAINTEXT_OUTPUT_FILENAME}
+      echo "$PASSWORD" > "${PLAINTEXT_OUTPUT_DIR}/${each}/${PLAINTEXT_OUTPUT_FILENAME}"
     fi
 
     unset _password
